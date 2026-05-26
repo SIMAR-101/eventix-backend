@@ -29,6 +29,10 @@ public class Booking {
     @Column(name = "total_amount")
     private Double totalAmount;
 
+    // THE NEW VAULT COLUMN FOR THE RECEIPT
+    @Column(name = "payment_id")
+    private String paymentId;
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -41,4 +45,7 @@ public class Booking {
 
     public Double getTotalAmount() { return totalAmount; }
     public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }
+
+    public String getPaymentId() { return paymentId; }
+    public void setPaymentId(String paymentId) { this.paymentId = paymentId; }
 }

@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 
                 // 2. Explicitly permit exact paths AND wildcard paths
-                .requestMatchers("/api/users", "/api/users/**", "/api/venues", "/api/venues/**", "/api/auth", "/api/auth/**", "/api/payments/**").permitAll()
+                .requestMatchers("/api/users", "/api/users/**", "/api/venues", "/api/venues/**", "/api/auth", "/api/auth/**", "/api/payments/**", "/api/bookings", "/api/bookings/**").permitAll()
                 
                 .anyRequest().authenticated()
             );

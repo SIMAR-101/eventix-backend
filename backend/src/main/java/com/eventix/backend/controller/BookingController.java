@@ -1,25 +1,58 @@
 package com.eventix.backend.controller;
 
 import com.eventix.backend.entity.Booking;
-import com.eventix.backend.service.BookingService;
+import com.eventix.backend.entity.User;
+import com.eventix.backend.repository.BookingRepository;
+import com.eventix.backend.repository.UserRepository;
+import com.eventix.backend.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bookings")
+@CrossOrigin(origins = "*")
 public class BookingController {
 
-    private final BookingService bookingService;
+    @Autowired
+    private BookingRepository bookingRepository;
 
-    // Plugs our secure transaction "Brain" into the checkout window
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    // Rule: Take the User ID from the URL, take the list of Ticket IDs from the body, and process the sale!
-    @PostMapping("/user/{userId}")
-    public Booking createBooking(@PathVariable Long userId, @RequestBody List<Long> ticketIds) {
-        return bookingService.createBooking(userId, ticketIds);
+    @Autowired
+    private JwtTokenProvider tokenProvider;
+
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmBooking(
+            @RequestHeader("Authorization") String token, 
+            @RequestBody Map<String, Object> data) {
+        
+        try {
+            // 1. Read the Digital ID Card (Remove the "Bearer " prefix)
+            String actualToken = token.substring(7);
+            String email = tokenProvider.getEmailFromToken(actualToken);
+
+            // 2. Find the user in the database
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (!userOptional.isPresent()) return ResponseEntity.badRequest().body("User not found in vault");
+
+            // 3. Create the official booking ticket!
+            Booking booking = new Booking();
+            booking.setUser(userOptional.get());
+            booking.setTotalAmount(Double.parseDouble(data.get("amount").toString()));
+            booking.setPaymentId(data.get("paymentId").toString());
+
+            // 4. Save to Aiven MySQL Cloud
+            bookingRepository.save(booking);
+
+            return ResponseEntity.ok("Ticket officially saved to the cloud vault!");
+        } catch (Exception e) {
+            System.out.println("Booking Save Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to save booking");
+        }
     }
 }
