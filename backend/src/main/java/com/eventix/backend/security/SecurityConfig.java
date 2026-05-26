@@ -19,24 +19,20 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Enable Global CORS configuration
             .cors(Customizer.withDefaults())
-            
-            // 2. Disable CSRF (We use JWTs, not browser cookies)
             .csrf(csrf -> csrf.disable())
-            
-            // 3. Make the API completely stateless
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // 4. Configure who is allowed to go where
             .authorizeHttpRequests(auth -> auth
-                // OPEN DOORS: Anyone can register an account and view the venue list
-                .requestMatchers("/api/users/**", "/api/venues/**", "/api/auth/**").permitAll()
+                // 1. Explicitly permit all CORS pre-flight requests
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // LOCKED DOORS: Everything else requires a valid JWT Token
+                // 2. Explicitly permit exact paths AND wildcard paths
+                .requestMatchers("/api/users", "/api/users/**", "/api/venues", "/api/venues/**", "/api/auth", "/api/auth/**").permitAll()
+                
                 .anyRequest().authenticated()
             );
 
