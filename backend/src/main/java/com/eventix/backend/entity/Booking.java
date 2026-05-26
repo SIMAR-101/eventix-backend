@@ -18,10 +18,14 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // This links the Booking directly to the User who made it!
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // THE UPGRADE: Linking the ticket to the specific venue!
+    @ManyToOne
+    @JoinColumn(name = "venue_id", nullable = false)
+    private Venue venue;
 
     @Column(name = "booking_date")
     private LocalDateTime bookingDate = LocalDateTime.now();
@@ -29,7 +33,6 @@ public class Booking {
     @Column(name = "total_amount")
     private Double totalAmount;
 
-    // THE NEW VAULT COLUMN FOR THE RECEIPT
     @Column(name = "payment_id")
     private String paymentId;
 
@@ -39,6 +42,9 @@ public class Booking {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    public Venue getVenue() { return venue; }
+    public void setVenue(Venue venue) { this.venue = venue; }
 
     public LocalDateTime getBookingDate() { return bookingDate; }
     public void setBookingDate(LocalDateTime bookingDate) { this.bookingDate = bookingDate; }
