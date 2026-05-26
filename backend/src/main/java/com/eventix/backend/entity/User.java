@@ -17,15 +17,17 @@ public class User {
 
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(nullable = false)
     private String passwordHash;
 
-    private String role;
+    // THE UPGRADE: System Clearance Level (CUSTOMER or ORGANIZER)
+    @Column(nullable = false)
+    private String role = "CUSTOMER";
 
-    // These are "Getters and Setters". They let the rest of our app read and write this data safely!
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
